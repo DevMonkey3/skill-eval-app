@@ -2,6 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Employee;
+use App\Models\Evaluation;
+use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,11 +18,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // パスワードはどちらも "password" (UserFactory の既定値)
+        $users = collect([
+            User::factory()->create(['name' => 'テスト ユーザー', 'email' => 'test@example.com']),
+            User::factory()->create(['name' => '評価 マネージャー', 'email' => 'manager@example.com']),
         ]);
+
+        $this->call(SkillSeeder::class);
+        $skills = Skill::all();
+
+        Employee::factory(40)->create()->each(function (Employee $employee) use ($skills, $users) {
+            // 3〜6個のスキルをランダムなレベルで付ける
+            $employee->skills()->attach(
+                $skills->random(rand(3, 6))->mapWithKeys(fn (Skill $skill) => [$skill->id => ['level' => rand(1, 5)]])
+            );
+
+            // 前期と今期の評価を1件ずつ作る
+            foreach ([Evaluation::periodFor(now()->subMonths(6)), Evaluation::periodFor(now())] as $period) {
+                Evaluation::factory()
+                    ->for($employee)
+                    ->for($users->random(), 'evaluator')
+                    ->create(['period' => $period]);
+            }
+        });
     }
 }
