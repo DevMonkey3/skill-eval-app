@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid } from '@lucide/vue';
+import {
+    ClipboardCheck,
+    FolderGit2,
+    LayoutGrid,
+    Sparkles,
+    Users,
+} from '@lucide/vue';
+import EmployeeController from '@/actions/App/Http/Controllers/EmployeeController';
+import EvaluationController from '@/actions/App/Http/Controllers/EvaluationController';
+import SkillController from '@/actions/App/Http/Controllers/SkillController';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -19,22 +28,32 @@ import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'ダッシュボード',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: '社員',
+        href: EmployeeController.index(),
+        icon: Users,
+    },
+    {
+        title: 'スキル',
+        href: SkillController.index(),
+        icon: Sparkles,
+    },
+    {
+        title: '評価',
+        href: EvaluationController.index(),
+        icon: ClipboardCheck,
     },
 ];
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
+        title: 'GitHub',
+        href: 'https://github.com/DevMonkey3/skill-eval-app',
         icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
     },
 ];
 </script>
