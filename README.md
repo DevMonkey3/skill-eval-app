@@ -9,10 +9,6 @@
   Laravel + Vue 3 (Inertia.js) + PostgreSQL で作成し、外部連携用の REST API も備えています。
 </p>
 
-<p align="center">
-  <a href="https://github.com/DevMonkey3/skill-eval-app/actions/workflows/tests.yml"><img src="https://github.com/DevMonkey3/skill-eval-app/actions/workflows/tests.yml/badge.svg" alt="tests"></a>
-</p>
-
 ---
 
 ## 概要
