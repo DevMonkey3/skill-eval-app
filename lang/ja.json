@@ -1,0 +1,18 @@
+{
+    "Profile updated.": "プロフィールを更新しました。",
+    "Password updated.": "パスワードを更新しました。",
+    "The provided password was incorrect.": "現在のパスワードが正しくありません。",
+    "The provided two factor authentication code was invalid.": "二要素認証のコードが正しくありません。",
+    "The provided two factor recovery code was invalid.": "リカバリーコードが正しくありません。",
+    "Invalid credential format.": "パスキーの形式が正しくありません。",
+    "Passkey registration session expired. Please try again.": "パスキー登録の有効期限が切れました。もう一度お試しください。",
+    "Passkey verification session expired. Please try again.": "パスキー認証の有効期限が切れました。もう一度お試しください。",
+    "The :attribute must be at least :length characters.": ":attributeは:length文字以上で入力してください。",
+    "The :attribute must be at least :length characters and contain at least one number.": ":attributeは:length文字以上で、数字を1文字以上含めてください。",
+    "The :attribute must be at least :length characters and contain at least one special character.": ":attributeは:length文字以上で、記号を1文字以上含めてください。",
+    "The :attribute must be at least :length characters and contain at least one special character and one number.": ":attributeは:length文字以上で、記号と数字をそれぞれ1文字以上含めてください。",
+    "The :attribute must be at least :length characters and contain at least one uppercase character.": ":attributeは:length文字以上で、大文字を1文字以上含めてください。",
+    "The :attribute must be at least :length characters and contain at least one uppercase character and one number.": ":attributeは:length文字以上で、大文字と数字をそれぞれ1文字以上含めてください。",
+    "The :attribute must be at least :length characters and contain at least one uppercase character and one special character.": ":attributeは:length文字以上で、大文字と記号をそれぞれ1文字以上含めてください。",
+    "The :attribute must be at least :length characters and contain at least one uppercase character, one number, and one special character.": ":attributeは:length文字以上で、大文字・数字・記号をそれぞれ1文字以上含めてください。"
+}

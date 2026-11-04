@@ -50,7 +50,8 @@ return [
     |
     */
 
-    'expiration' => null,
+    // API トークンは 30 日で失効させる (期限切れのトークンは routes/console.php で毎日削除)
+    'expiration' => (int) env('SANCTUM_TOKEN_EXPIRATION', 60 * 24 * 30),
 
     /*
     |--------------------------------------------------------------------------

@@ -23,9 +23,7 @@ class EmployeeController extends Controller
 
         $employees = Employee::query()
             ->withCount('skills')
-            ->when($search, fn ($query) => $query->where(fn ($query) => $query
-                ->whereLike('name', "%{$search}%")
-                ->orWhereLike('employee_code', "%{$search}%")))
+            ->when($search, fn ($query) => $query->search($search))
             ->when($department, fn ($query) => $query->where('department', $department))
             ->orderBy('employee_code')
             ->paginate(15)

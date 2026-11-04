@@ -6,11 +6,9 @@ defineProps<{
     links: PaginationLink[];
 }>();
 
-// Laravel のラベルは "&laquo; Previous" のような HTML なので、記号に置き換えて表示する
+// Laravel のラベルは "&laquo; 前へ" のような HTML 文字参照を含むので、記号に置き換えて表示する
 const labelText = (label: string): string =>
-    label
-        .replace('&laquo; Previous', '‹ 前へ')
-        .replace('Next &raquo;', '次へ ›');
+    label.replace('&laquo;', '‹').replace('&raquo;', '›');
 </script>
 
 <template>
@@ -19,7 +17,8 @@ const labelText = (label: string): string =>
         class="flex flex-wrap gap-1"
         aria-label="ページ送り"
     >
-        <template v-for="link in links" :key="link.label">
+        <!-- ページが多いと "..." が 2 回出るので、key はラベルではなく位置にする -->
+        <template v-for="(link, index) in links" :key="index">
             <Link
                 v-if="link.url"
                 :href="link.url"
@@ -29,6 +28,7 @@ const labelText = (label: string): string =>
                     'border-primary bg-primary text-primary-foreground hover:bg-primary/90':
                         link.active,
                 }"
+                :aria-current="link.active ? 'page' : undefined"
             >
                 {{ labelText(link.label) }}
             </Link>

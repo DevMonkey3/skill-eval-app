@@ -19,7 +19,7 @@ class SkillTest extends TestCase
         Employee::factory()->create()->skills()->attach($skill, ['level' => 2]);
         Employee::factory()->create()->skills()->attach($skill, ['level' => 4]);
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->admin()->create())
             ->get(route('skills.index'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
@@ -31,7 +31,7 @@ class SkillTest extends TestCase
 
     public function test_skill_can_be_created_updated_and_deleted()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
 
         $this->actingAs($user)
             ->post(route('skills.store'), ['name' => 'Laravel', 'category' => 'フレームワーク'])
@@ -54,7 +54,7 @@ class SkillTest extends TestCase
     {
         Skill::factory()->create(['name' => 'Laravel']);
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->admin()->create())
             ->post(route('skills.store'), ['name' => 'Laravel', 'category' => '存在しないカテゴリ'])
             ->assertSessionHasErrors(['name', 'category']);
     }

@@ -23,7 +23,9 @@ class EvaluationController extends Controller
         $evaluations = Evaluation::query()
             ->with(['employee:id,name,employee_code', 'evaluator:id,name'])
             ->when($period, fn ($query) => $query->where('period', $period))
+            // 同じ時刻の行があってもページ間で重複・欠落しないよう、id でも並べる
             ->latest()
+            ->orderByDesc('id')
             ->paginate(20)
             ->withQueryString();
 
@@ -67,10 +69,11 @@ class EvaluationController extends Controller
         ]);
     }
 
+    /**
+     * 本人の評価かどうかは EvaluationRequest::authorize() で確認済み。
+     */
     public function update(EvaluationRequest $request, Evaluation $evaluation): RedirectResponse
     {
-        Gate::authorize('update', $evaluation);
-
         $evaluation->update($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => '評価を更新しました。']);

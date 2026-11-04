@@ -82,7 +82,7 @@ const submit = () => {
                     <label
                         v-for="(label, score) in scoreLabels"
                         :key="score"
-                        class="flex cursor-pointer flex-col items-center rounded-lg border p-3 text-center transition hover:bg-accent has-[:checked]:border-primary has-[:checked]:bg-primary/10"
+                        class="flex cursor-pointer flex-col items-center rounded-lg border p-3 text-center transition hover:bg-accent has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
                     >
                         <input
                             v-model="form.score"

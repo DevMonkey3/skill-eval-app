@@ -10,7 +10,7 @@ use Illuminate\Validation\Rule;
 class EmployeeRequest extends FormRequest
 {
     /**
-     * ルートは auth ミドルウェアで守っているので、ここでは常に許可する。
+     * 管理者だけに絞る処理は、ルートの can:admin ミドルウェアで行っている。
      */
     public function authorize(): bool
     {
@@ -27,12 +27,15 @@ class EmployeeRequest extends FormRequest
         // 新規登録時は null、更新時は編集中の社員。更新時は自分自身を重複チェックから外す
         $employee = $this->route('employee');
 
+        // API の PATCH では送った項目だけを更新できるようにする
+        $required = $this->isMethod('PATCH') ? 'sometimes' : 'required';
+
         return [
-            'employee_code' => ['required', 'string', 'max:10', Rule::unique(Employee::class)->ignore($employee)],
-            'name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:255', Rule::unique(Employee::class)->ignore($employee)],
-            'department' => ['required', Rule::in(Employee::DEPARTMENTS)],
-            'position' => ['required', Rule::in(Employee::POSITIONS)],
+            'employee_code' => [$required, 'string', 'max:10', Rule::unique(Employee::class)->ignore($employee)],
+            'name' => [$required, 'string', 'max:100'],
+            'email' => [$required, 'email', 'max:255', Rule::unique(Employee::class)->ignore($employee)],
+            'department' => [$required, Rule::in(Employee::DEPARTMENTS)],
+            'position' => [$required, Rule::in(Employee::POSITIONS)],
             'hired_on' => ['nullable', 'date', 'before_or_equal:today'],
         ];
     }

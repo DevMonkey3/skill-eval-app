@@ -13,12 +13,19 @@ Route::name('api.')->group(function () {
         ->middleware('throttle:10,1')
         ->name('tokens.store');
 
-    Route::middleware('auth:sanctum')->group(function () {
+    // 画面と同じく、メール認証が済んだユーザーだけが使える
+    Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::delete('tokens/current', [TokenController::class, 'destroy'])->name('tokens.destroy');
 
         Route::get('user', fn (Request $request) => $request->user())->name('user');
 
-        Route::apiResource('employees', EmployeeController::class);
+        // 社員の登録・更新・削除は管理者だけ
+        Route::apiResource('employees', EmployeeController::class)
+            ->except(['index', 'show'])
+            ->middleware('can:admin');
+        Route::apiResource('employees', EmployeeController::class)->only(['index', 'show']);
+
+        // 評価は誰でも登録できる。更新・削除は EvaluationPolicy で本人だけに絞る
         Route::apiResource('evaluations', EvaluationController::class);
     });
 });

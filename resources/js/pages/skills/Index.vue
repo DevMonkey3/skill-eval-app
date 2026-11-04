@@ -6,6 +6,7 @@ import SkillController from '@/actions/App/Http/Controllers/SkillController';
 import Heading from '@/components/Heading.vue';
 import LevelBar from '@/components/LevelBar.vue';
 import { Button } from '@/components/ui/button';
+import { useIsAdmin } from '@/composables/useIsAdmin';
 import type { Skill } from '@/types';
 
 defineOptions({
@@ -18,6 +19,8 @@ const props = defineProps<{
     skills: Skill[];
     categories: string[];
 }>();
+
+const isAdmin = useIsAdmin();
 
 // カテゴリごとにまとめる (順番は Skill::CATEGORIES の順)
 const groups = computed(() =>
@@ -48,7 +51,7 @@ const deleteSkill = (skill: Skill) => {
     <div class="flex flex-col gap-6 p-4 md:p-6">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <Heading title="スキル" :description="`全 ${skills.length} 件`" />
-            <Button as-child>
+            <Button v-if="isAdmin" as-child>
                 <Link :href="SkillController.create()">
                     <Plus />
                     スキルを登録
@@ -86,7 +89,7 @@ const deleteSkill = (skill: Skill) => {
                                 保有者 {{ skill.employees_count }} 名
                             </p>
                         </div>
-                        <div class="flex">
+                        <div v-if="isAdmin" class="flex">
                             <Button variant="ghost" size="icon-sm" as-child>
                                 <Link
                                     :href="SkillController.edit(skill.id)"

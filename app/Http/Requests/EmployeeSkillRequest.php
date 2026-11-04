@@ -22,7 +22,8 @@ class EmployeeSkillRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'skill_id' => ['required', 'integer', Rule::exists(Skill::class, 'id')],
+            // bail: 数値でなければそこで止め、PostgreSQL に文字列の ID で問い合わせないようにする
+            'skill_id' => ['bail', 'required', 'integer', Rule::exists(Skill::class, 'id')],
             'level' => ['required', 'integer', 'between:1,5'],
         ];
     }

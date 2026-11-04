@@ -11,11 +11,18 @@ use Illuminate\Validation\Rule;
 class EvaluationRequest extends FormRequest
 {
     /**
-     * 「自分が書いた評価か」はコントローラーの Gate (EvaluationPolicy) で確認する。
+     * 新規登録は誰でもできる。更新は EvaluationPolicy で「評価を書いた本人か」を確認する。
+     * ここで確認すると、他人の評価に不正な値を送った場合も 422 ではなく 403 になる。
      */
     public function authorize(): bool
     {
-        return true;
+        $evaluation = $this->route('evaluation');
+
+        if (! $evaluation instanceof Evaluation) {
+            return true;
+        }
+
+        return $this->user()?->can('update', $evaluation) ?? false;
     }
 
     /**
@@ -25,19 +32,26 @@ class EvaluationRequest extends FormRequest
      */
     public function rules(): array
     {
+        $evaluation = $this->route('evaluation');
+        $evaluation = $evaluation instanceof Evaluation ? $evaluation : null;
+
+        // API の PATCH では送った項目だけを更新できるようにする
+        $required = $this->isMethod('PATCH') ? 'sometimes' : 'required';
+
         return [
-            'employee_id' => ['required', 'integer', Rule::exists(Employee::class, 'id')],
+            // bail: 数値でなければそこで止め、PostgreSQL に文字列の ID で問い合わせないようにする
+            'employee_id' => ['bail', $required, 'integer', Rule::exists(Employee::class, 'id')],
             'period' => [
-                'required',
+                $required,
                 'string',
                 'regex:'.Evaluation::PERIOD_PATTERN,
                 // DB のユニーク制約と同じ条件。先にここで弾いて分かりやすいメッセージを返す
                 Rule::unique(Evaluation::class)
-                    ->where('employee_id', $this->input('employee_id'))
+                    ->where('employee_id', $this->integer('employee_id', $evaluation->employee_id ?? 0))
                     ->where('evaluator_id', $this->user()?->getAuthIdentifier())
-                    ->ignore($this->route('evaluation')),
+                    ->ignore($evaluation),
             ],
-            'score' => ['required', 'integer', 'between:1,5'],
+            'score' => [$required, 'integer', 'between:1,5'],
             'comment' => ['nullable', 'string', 'max:1000'],
         ];
     }

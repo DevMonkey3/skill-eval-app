@@ -5,6 +5,8 @@ namespace App\Models;
 use Carbon\CarbonInterface;
 use Database\Factories\EmployeeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -44,6 +46,23 @@ class Employee extends Model
             // JSON にすると "2020-04-01" になり、<input type="date"> にそのまま入る
             'hired_on' => 'date:Y-m-d',
         ];
+    }
+
+    /**
+     * 氏名・社員番号の部分一致検索 (大文字小文字は区別しない)。
+     * 入力の % と _ はワイルドカードではなく文字として扱う。
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function search(Builder $query, string $term): void
+    {
+        $like = '%'.addcslashes(mb_strtolower($term), '\\%_').'%';
+
+        // SQLite と PostgreSQL のどちらでも同じ動きになるよう、lower() と ESCAPE を明示する
+        $query->where(fn (Builder $query) => $query
+            ->whereRaw("lower(name) like ? escape '\\'", [$like])
+            ->orWhereRaw("lower(employee_code) like ? escape '\\'", [$like]));
     }
 
     /**

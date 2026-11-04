@@ -16,7 +16,8 @@ class HandleAppearance
      */
     public function handle(Request $request, Closure $next): Response
     {
-        View::share('appearance', $request->cookie('appearance') ?? 'system');
+        // 既定は白 × オレンジのライトテーマ (resources/js/composables/useAppearance.ts と合わせる)
+        View::share('appearance', $request->cookie('appearance') ?? 'light');
 
         return $next($request);
     }

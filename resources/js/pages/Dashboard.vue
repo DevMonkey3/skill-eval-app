@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
-import { ClipboardCheck, Sparkles, Star, Users } from '@lucide/vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { ClipboardCheck, Plus, Sparkles, Star, Users } from '@lucide/vue';
 import EmployeeController from '@/actions/App/Http/Controllers/EmployeeController';
 import EvaluationController from '@/actions/App/Http/Controllers/EvaluationController';
 import SkillController from '@/actions/App/Http/Controllers/SkillController';
@@ -26,6 +26,8 @@ const props = defineProps<{
     recentEvaluations: Evaluation[];
     scoreLabels: Labels;
 }>();
+
+const userName = usePage().props.auth.user.name;
 
 const cards = [
     {
@@ -68,6 +70,40 @@ const maxCount = Math.max(
     <Head title="ダッシュボード" />
 
     <div class="flex flex-col gap-6 p-4 md:p-6">
+        <!-- あいさつのバナー -->
+        <section
+            class="relative overflow-hidden rounded-xl bg-gradient-to-r from-orange-500 via-orange-400 to-amber-400 p-6 text-white shadow-sm"
+        >
+            <div
+                class="pointer-events-none absolute -top-16 -right-10 size-56 rounded-full bg-white/15"
+            />
+            <div
+                class="pointer-events-none absolute right-32 -bottom-20 size-40 rounded-full bg-white/10"
+            />
+            <div
+                class="relative flex flex-wrap items-center justify-between gap-4"
+            >
+                <div>
+                    <p class="text-sm text-white/85">
+                        {{ currentPeriod }} ・ 今期
+                    </p>
+                    <h1 class="mt-1 text-2xl font-bold">
+                        こんにちは、{{ userName }} さん
+                    </h1>
+                    <p class="mt-1 text-sm text-white/85">
+                        社員のスキルと今期の評価の状況をひと目で確認できます。
+                    </p>
+                </div>
+                <Link
+                    :href="EvaluationController.create()"
+                    class="inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-orange-600 shadow-sm transition hover:bg-orange-50"
+                >
+                    <Plus class="size-4" />
+                    評価を登録
+                </Link>
+            </div>
+        </section>
+
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <Link
                 v-for="card in cards"
@@ -92,6 +128,12 @@ const maxCount = Math.max(
         <div class="grid gap-6 lg:grid-cols-2">
             <section class="rounded-xl border p-6">
                 <h2 class="mb-4 font-semibold">保有者が多いスキル</h2>
+                <p
+                    v-if="topSkills.length === 0"
+                    class="text-sm text-muted-foreground"
+                >
+                    スキルはまだ登録されていません。
+                </p>
                 <ul class="space-y-3">
                     <li v-for="skill in topSkills" :key="skill.id">
                         <div class="mb-1 flex justify-between text-sm">

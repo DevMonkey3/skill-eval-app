@@ -19,8 +19,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // パスワードはどちらも "password" (UserFactory の既定値)
+        // test@ は社員・スキルも編集できる管理者、manager@ は閲覧と評価だけができる一般ユーザー
         $users = collect([
-            User::factory()->create(['name' => 'テスト ユーザー', 'email' => 'test@example.com']),
+            User::factory()->admin()->create(['name' => 'テスト ユーザー', 'email' => 'test@example.com']),
             User::factory()->create(['name' => '評価 マネージャー', 'email' => 'manager@example.com']),
         ]);
 

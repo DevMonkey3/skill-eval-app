@@ -42,11 +42,10 @@ onMounted(async () => {
     <Card class="w-full">
         <CardHeader>
             <CardTitle class="flex gap-3">
-                <LockKeyhole class="size-4" />2FA recovery codes
+                <LockKeyhole class="size-4" />二要素認証のリカバリーコード
             </CardTitle>
             <CardDescription>
-                Recovery codes let you regain access if you lose your 2FA
-                device. Store them in a secure password manager.
+                リカバリーコードを使うと、二要素認証のデバイスを紛失した場合でもアカウントにアクセスできます。安全なパスワードマネージャーに保管してください。
             </CardDescription>
         </CardHeader>
         <CardContent>
@@ -58,8 +57,9 @@ onMounted(async () => {
                         :is="isRecoveryCodesVisible ? EyeOff : Eye"
                         class="size-4"
                     />
-                    {{ isRecoveryCodesVisible ? 'Hide' : 'View' }} recovery
-                    codes
+                    リカバリーコードを{{
+                        isRecoveryCodesVisible ? '隠す' : '表示'
+                    }}
                 </Button>
 
                 <Form
@@ -75,7 +75,7 @@ onMounted(async () => {
                         type="submit"
                         :disabled="processing"
                     >
-                        <RefreshCw /> Regenerate codes
+                        <RefreshCw /> コードを再生成
                     </Button>
                 </Form>
             </div>
@@ -111,10 +111,10 @@ onMounted(async () => {
                         </div>
                     </div>
                     <p class="text-xs text-muted-foreground select-none">
-                        Each recovery code can be used once to access your
-                        account and will be removed after use. If you need more,
-                        click
-                        <span class="font-bold">Regenerate codes</span> above.
+                        各リカバリーコードはアカウントへのアクセスに1回だけ使用でき、使用後は無効になります。追加のコードが必要な場合は、上の「<span
+                            class="font-bold"
+                            >コードを再生成</span
+                        >」をクリックしてください。
                     </p>
                 </div>
             </div>

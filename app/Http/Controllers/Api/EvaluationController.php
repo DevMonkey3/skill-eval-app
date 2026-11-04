@@ -28,7 +28,9 @@ class EvaluationController extends Controller
             ->with(['employee', 'evaluator:id,name'])
             ->when($period, fn ($query) => $query->where('period', $period))
             ->when($employeeId, fn ($query) => $query->where('employee_id', $employeeId))
+            // 同じ時刻の行があってもページ間で重複・欠落しないよう、id でも並べる
             ->latest()
+            ->orderByDesc('id')
             ->paginate($perPage)
             ->withQueryString();
 
@@ -49,10 +51,11 @@ class EvaluationController extends Controller
         return EvaluationResource::make($evaluation->load(['employee', 'evaluator:id,name']));
     }
 
+    /**
+     * 本人の評価かどうかは EvaluationRequest::authorize() で確認済み。
+     */
     public function update(EvaluationRequest $request, Evaluation $evaluation): EvaluationResource
     {
-        Gate::authorize('update', $evaluation);
-
         $evaluation->update($request->validated());
 
         return EvaluationResource::make($evaluation->load(['employee', 'evaluator:id,name']));

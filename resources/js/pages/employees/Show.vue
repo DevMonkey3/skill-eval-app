@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { Mail, Pencil, Plus, Star, Trash2 } from '@lucide/vue';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import EmployeeController from '@/actions/App/Http/Controllers/EmployeeController';
 import EmployeeSkillController from '@/actions/App/Http/Controllers/EmployeeSkillController';
 import EvaluationController from '@/actions/App/Http/Controllers/EvaluationController';
@@ -11,6 +11,7 @@ import NativeSelect from '@/components/NativeSelect.vue';
 import ScoreBadge from '@/components/ScoreBadge.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useIsAdmin } from '@/composables/useIsAdmin';
 import type { Employee, Labels, Skill } from '@/types';
 
 const props = defineProps<{
@@ -29,6 +30,8 @@ setLayoutProps({
         },
     ],
 });
+
+const isAdmin = useIsAdmin();
 
 const skills = computed(() => props.employee.skills ?? []);
 const evaluations = computed(() => props.employee.evaluations ?? []);
@@ -55,12 +58,19 @@ const addForm = useForm({
 const addSkill = () => {
     addForm.submit(EmployeeSkillController.store(props.employee.id), {
         preserveScroll: true,
-        onSuccess: () => {
-            // 追加したスキルは選択肢から消えるので、次の候補を選び直す
-            addForm.skill_id = props.availableSkills[0]?.id ?? null;
-        },
     });
 };
+
+// 追加・削除で選択肢が変わったとき、選択中のスキルが選択肢に無ければ先頭を選び直す
+// (全スキル保有 → 1 つ外した、のように選択肢が空から戻ったときも空欄にしない)
+watch(
+    () => props.availableSkills,
+    (list) => {
+        if (!list.some((skill) => skill.id === addForm.skill_id)) {
+            addForm.skill_id = list[0]?.id ?? null;
+        }
+    },
+);
 
 // レベル変更は選んだ瞬間に送る (同じ store エンドポイントがレベル更新も兼ねる)
 const changeLevel = (skill: Skill, event: Event) => {
@@ -144,16 +154,18 @@ const deleteEmployee = () => {
                             評価する
                         </Link>
                     </Button>
-                    <Button variant="outline" as-child>
-                        <Link :href="EmployeeController.edit(employee.id)">
-                            <Pencil />
-                            編集
-                        </Link>
-                    </Button>
-                    <Button variant="destructive" @click="deleteEmployee">
-                        <Trash2 />
-                        削除
-                    </Button>
+                    <template v-if="isAdmin">
+                        <Button variant="outline" as-child>
+                            <Link :href="EmployeeController.edit(employee.id)">
+                                <Pencil />
+                                編集
+                            </Link>
+                        </Button>
+                        <Button variant="destructive" @click="deleteEmployee">
+                            <Trash2 />
+                            削除
+                        </Button>
+                    </template>
                 </div>
             </div>
 
@@ -186,7 +198,9 @@ const deleteEmployee = () => {
                     v-if="skills.length === 0"
                     class="text-sm text-muted-foreground"
                 >
-                    スキルが登録されていません。下のフォームから追加できます。
+                    スキルが登録されていません。<template v-if="isAdmin"
+                        >下のフォームから追加できます。</template
+                    >
                 </p>
 
                 <ul class="space-y-4">
@@ -205,33 +219,39 @@ const deleteEmployee = () => {
                             :level="skill.pivot?.level ?? 0"
                             class="min-w-24 flex-1"
                         />
-                        <NativeSelect
-                            :model-value="skill.pivot?.level"
-                            class="h-8 w-36 text-xs md:text-xs"
-                            :aria-label="`${skill.name} のレベル`"
-                            @change="changeLevel(skill, $event)"
-                        >
-                            <option
-                                v-for="(label, level) in levelLabels"
-                                :key="level"
-                                :value="Number(level)"
+                        <template v-if="isAdmin">
+                            <NativeSelect
+                                :model-value="skill.pivot?.level"
+                                class="h-8 w-36 text-xs md:text-xs"
+                                :aria-label="`${skill.name} のレベル`"
+                                @change="changeLevel(skill, $event)"
                             >
-                                Lv.{{ level }} {{ label }}
-                            </option>
-                        </NativeSelect>
-                        <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            :aria-label="`${skill.name} を外す`"
-                            @click="removeSkill(skill)"
-                        >
-                            <Trash2 />
-                        </Button>
+                                <option
+                                    v-for="(label, level) in levelLabels"
+                                    :key="level"
+                                    :value="Number(level)"
+                                >
+                                    Lv.{{ level }} {{ label }}
+                                </option>
+                            </NativeSelect>
+                            <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                :aria-label="`${skill.name} を外す`"
+                                @click="removeSkill(skill)"
+                            >
+                                <Trash2 />
+                            </Button>
+                        </template>
+                        <span v-else class="w-36 text-xs text-muted-foreground">
+                            Lv.{{ skill.pivot?.level }}
+                            {{ levelLabels[skill.pivot?.level ?? 0] }}
+                        </span>
                     </li>
                 </ul>
 
                 <form
-                    v-if="availableSkills.length > 0"
+                    v-if="isAdmin && availableSkills.length > 0"
                     class="mt-6 rounded-lg border border-dashed p-4"
                     @submit.prevent="addSkill"
                 >

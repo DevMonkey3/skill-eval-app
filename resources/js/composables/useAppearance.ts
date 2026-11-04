@@ -4,6 +4,10 @@ import type { Appearance, ResolvedAppearance } from '@/types';
 
 export type { Appearance, ResolvedAppearance };
 
+// OS がダークモードでも、最初は白 × オレンジで表示する (設定 → 表示設定 で変更できる)
+// app/Http/Middleware/HandleAppearance.php の既定値と合わせること
+export const DEFAULT_APPEARANCE: Appearance = 'light';
+
 export type UseAppearanceReturn = {
     appearance: Ref<Appearance>;
     resolvedAppearance: ComputedRef<ResolvedAppearance>;
@@ -67,7 +71,7 @@ const prefersDark = (): boolean => {
 const handleSystemThemeChange = () => {
     const currentAppearance = getStoredAppearance();
 
-    updateTheme(currentAppearance || 'system');
+    updateTheme(currentAppearance || DEFAULT_APPEARANCE);
 };
 
 export function initializeTheme(): void {
@@ -75,15 +79,15 @@ export function initializeTheme(): void {
         return;
     }
 
-    // Initialize theme from saved preference or default to system...
+    // 保存された設定があればそれを使い、なければ白 × オレンジのライトテーマにする
     const savedAppearance = getStoredAppearance();
-    updateTheme(savedAppearance || 'system');
+    updateTheme(savedAppearance || DEFAULT_APPEARANCE);
 
     // Set up system theme change listener...
     mediaQuery()?.addEventListener('change', handleSystemThemeChange);
 }
 
-const appearance = ref<Appearance>('system');
+const appearance = ref<Appearance>(DEFAULT_APPEARANCE);
 
 export function useAppearance(): UseAppearanceReturn {
     onMounted(() => {

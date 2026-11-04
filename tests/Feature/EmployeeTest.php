@@ -22,7 +22,7 @@ class EmployeeTest extends TestCase
     {
         Employee::factory()->create(['name' => '山田 太郎']);
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->admin()->create())
             ->get(route('employees.index'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
@@ -36,7 +36,7 @@ class EmployeeTest extends TestCase
         Employee::factory()->create(['name' => '山田 太郎', 'department' => '開発部']);
         Employee::factory()->create(['name' => '佐藤 花子', 'department' => '営業部']);
 
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
 
         $this->actingAs($user)
             ->get(route('employees.index', ['search' => '山田']))
@@ -55,7 +55,7 @@ class EmployeeTest extends TestCase
     {
         $data = Employee::factory()->make()->toArray();
 
-        $response = $this->actingAs(User::factory()->create())
+        $response = $this->actingAs(User::factory()->admin()->create())
             ->post(route('employees.store'), $data);
 
         $employee = Employee::query()->where('email', $data['email'])->firstOrFail();
@@ -64,7 +64,7 @@ class EmployeeTest extends TestCase
 
     public function test_required_fields_are_validated()
     {
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->admin()->create())
             ->post(route('employees.store'), [])
             ->assertSessionHasErrors(['employee_code', 'name', 'email', 'department', 'position']);
 
@@ -75,7 +75,7 @@ class EmployeeTest extends TestCase
     {
         $existing = Employee::factory()->create();
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->admin()->create())
             ->post(route('employees.store'), Employee::factory()->make([
                 'email' => $existing->email,
                 'employee_code' => $existing->employee_code,
@@ -87,7 +87,7 @@ class EmployeeTest extends TestCase
     {
         $employee = Employee::factory()->create();
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->admin()->create())
             ->put(route('employees.update', $employee), [...$employee->toArray(), 'name' => '新しい 名前'])
             ->assertSessionHasNoErrors()
             ->assertRedirect(route('employees.show', $employee));
@@ -100,7 +100,7 @@ class EmployeeTest extends TestCase
         $employee = Employee::factory()->create();
         $employee->skills()->attach(Skill::factory()->create(), ['level' => 3]);
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->admin()->create())
             ->delete(route('employees.destroy', $employee))
             ->assertRedirect(route('employees.index'));
 
@@ -110,7 +110,7 @@ class EmployeeTest extends TestCase
 
     public function test_skill_can_be_added_updated_and_removed()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->admin()->create();
         $employee = Employee::factory()->create();
         $skill = Skill::factory()->create();
 
@@ -135,7 +135,7 @@ class EmployeeTest extends TestCase
     {
         $employee = Employee::factory()->create();
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->admin()->create())
             ->post(route('employees.skills.store', $employee), [
                 'skill_id' => Skill::factory()->create()->id,
                 'level' => 6,

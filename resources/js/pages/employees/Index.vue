@@ -8,6 +8,7 @@ import NativeSelect from '@/components/NativeSelect.vue';
 import Pagination from '@/components/Pagination.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useIsAdmin } from '@/composables/useIsAdmin';
 import type { Employee, Paginated } from '@/types';
 
 defineOptions({
@@ -21,6 +22,8 @@ const props = defineProps<{
     filters: { search: string; department: string };
     departments: string[];
 }>();
+
+const isAdmin = useIsAdmin();
 
 const search = ref(props.filters.search);
 const department = ref(props.filters.department);
@@ -52,7 +55,7 @@ watch([search, department], () => {
                 title="社員一覧"
                 :description="`全 ${employees.total} 名`"
             />
-            <Button as-child>
+            <Button v-if="isAdmin" as-child>
                 <Link :href="EmployeeController.create()">
                     <Plus />
                     社員を登録
@@ -69,6 +72,7 @@ watch([search, department], () => {
                     v-model="search"
                     type="search"
                     placeholder="名前・社員番号で検索"
+                    aria-label="名前・社員番号で検索"
                     class="pl-9"
                 />
             </div>

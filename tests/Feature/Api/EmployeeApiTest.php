@@ -20,7 +20,7 @@ class EmployeeApiTest extends TestCase
 
     public function test_employees_can_be_listed()
     {
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs(User::factory()->admin()->create());
         Employee::factory(3)->create();
 
         $this->getJson('/api/employees')
@@ -35,7 +35,7 @@ class EmployeeApiTest extends TestCase
 
     public function test_per_page_is_capped_at_100()
     {
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs(User::factory()->admin()->create());
 
         $this->getJson('/api/employees?per_page=100000')
             ->assertOk()
@@ -44,7 +44,7 @@ class EmployeeApiTest extends TestCase
 
     public function test_employee_can_be_shown_with_skill_levels()
     {
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs(User::factory()->admin()->create());
         $employee = Employee::factory()->create();
         $employee->skills()->attach(Skill::factory()->create(['name' => 'Laravel']), ['level' => 4]);
 
@@ -56,14 +56,14 @@ class EmployeeApiTest extends TestCase
 
     public function test_missing_employee_returns_404()
     {
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs(User::factory()->admin()->create());
 
         $this->getJson('/api/employees/999')->assertNotFound();
     }
 
     public function test_store_validates_input()
     {
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs(User::factory()->admin()->create());
 
         $this->postJson('/api/employees', ['email' => 'not-an-email'])
             ->assertUnprocessable()
@@ -72,7 +72,7 @@ class EmployeeApiTest extends TestCase
 
     public function test_employee_can_be_created_updated_and_deleted()
     {
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs(User::factory()->admin()->create());
         $data = Employee::factory()->make()->toArray();
 
         $id = $this->postJson('/api/employees', $data)

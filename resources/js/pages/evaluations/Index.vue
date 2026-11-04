@@ -74,6 +74,7 @@ const formatDate = (value: string): string =>
                 type="button"
                 class="rounded-full border px-3 py-1 text-sm"
                 :class="chipClass(filters.period === '')"
+                :aria-pressed="filters.period === ''"
                 @click="filterBy('')"
             >
                 すべて
@@ -84,6 +85,7 @@ const formatDate = (value: string): string =>
                 type="button"
                 class="rounded-full border px-3 py-1 text-sm"
                 :class="chipClass(filters.period === period)"
+                :aria-pressed="filters.period === period"
                 @click="filterBy(period)"
             >
                 {{ period }}
