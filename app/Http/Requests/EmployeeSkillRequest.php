@@ -2,17 +2,16 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Skill;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class EmployeeSkillRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +22,19 @@ class EmployeeSkillRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'skill_id' => ['required', 'integer', Rule::exists(Skill::class, 'id')],
+            'level' => ['required', 'integer', 'between:1,5'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'skill_id' => 'スキル',
+            'level' => 'レベル',
         ];
     }
 }
