@@ -42,7 +42,7 @@ class EdgeCaseTest extends TestCase
 
         $this->actingAs(User::factory()->create());
 
-        foreach (['%' => 0, '_' => 0, '山田' => 1, 'e000' => 1] as $search => $count) {
+        foreach (['%' => 0, '_' => 0, '!' => 0, '山田' => 1, 'e000' => 1] as $search => $count) {
             $this->get(route('employees.index', ['search' => $search]))
                 ->assertInertia(fn (Assert $page) => $page->where('employees.total', $count));
         }
@@ -101,10 +101,12 @@ class EdgeCaseTest extends TestCase
         $popular = Skill::factory()->create(['name' => 'PHP']);
         Skill::factory()->create(['name' => 'Go']);
 
-        Employee::factory(2)->create()->each(function (Employee $employee) use ($popular, $period) {
+        // PostgreSQL ではテストごとに ID が 1 から始まるとは限らないので、ID ではなく順番でスコアを決める
+        foreach ([4, 5] as $score) {
+            $employee = Employee::factory()->create();
             $employee->skills()->attach($popular, ['level' => 3]);
-            Evaluation::factory()->for($employee)->create(['period' => $period, 'score' => $employee->id === 1 ? 4 : 5]);
-        });
+            Evaluation::factory()->for($employee)->create(['period' => $period, 'score' => $score]);
+        }
         Evaluation::factory()->create(['period' => '2000-H1']);
 
         $this->actingAs(User::factory()->create())

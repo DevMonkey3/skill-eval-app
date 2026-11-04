@@ -57,12 +57,14 @@ class Employee extends Model
     #[Scope]
     protected function search(Builder $query, string $term): void
     {
-        $like = '%'.addcslashes(mb_strtolower($term), '\\%_').'%';
+        // エスケープ文字は ! を使う (\ は DB や PDO によって解釈が変わるため)
+        $escaped = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower($term));
+        $like = '%'.$escaped.'%';
 
         // SQLite と PostgreSQL のどちらでも同じ動きになるよう、lower() と ESCAPE を明示する
         $query->where(fn (Builder $query) => $query
-            ->whereRaw("lower(name) like ? escape '\\'", [$like])
-            ->orWhereRaw("lower(employee_code) like ? escape '\\'", [$like]));
+            ->whereRaw("lower(name) like ? escape '!'", [$like])
+            ->orWhereRaw("lower(employee_code) like ? escape '!'", [$like]));
     }
 
     /**

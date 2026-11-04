@@ -68,6 +68,8 @@ export default defineConfig({
         htmlWhitespaceSensitivity: 'css',
         ignorePatterns: [
             '.github/**',
+            // README などは GitHub の画面から直接編集するので、整形チェックの対象外にする
+            '*.md',
             'composer.json',
             'resources/js/components/ui/*',
             'resources/views/mail/*',

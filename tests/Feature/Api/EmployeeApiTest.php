@@ -58,7 +58,8 @@ class EmployeeApiTest extends TestCase
     {
         Sanctum::actingAs(User::factory()->admin()->create());
 
-        $this->getJson('/api/employees/999')->assertNotFound();
+        // PostgreSQL では ID の連番がテスト間でリセットされないので、確実に存在しない大きな ID を使う
+        $this->getJson('/api/employees/999999999')->assertNotFound();
     }
 
     public function test_store_validates_input()
